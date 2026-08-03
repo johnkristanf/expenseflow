@@ -1,5 +1,3 @@
-# Antigravity Persistent Instructions (Expenseflow)
-
 This document contains general guidelines, architecture overview, commands, and code conventions for the Expenseflow project. You must adhere to these rules when contributing to this codebase.
 
 ## 🏗 Architecture Overview
