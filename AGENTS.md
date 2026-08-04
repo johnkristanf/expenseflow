@@ -45,3 +45,7 @@ This document contains general guidelines, architecture overview, commands, and 
   - Database schema changes
   - Installing new dependencies
   - Deleting files or significant blocks of code
+- **Environment Variables**: Never touch or edit `.env` or `.env.local` files directly. When referencing environment variables in code, write `process.env.KEY_NAME` directly in the code and add `KEY_NAME=` to `.env.example`. The developer is responsible for assigning the actual values in their local environment files.
+- **Concise Communication**: When providing explanations or comments after completing an implementation, keep them simplified and as short as possible.
+
+
