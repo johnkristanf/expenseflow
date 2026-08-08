@@ -52,7 +52,7 @@ export async function createExpense(data: {
     const [budget] = await tx
       .select()
       .from(budgets)
-      .where(eq(budgets.id, data.budgetId));
+      .where(eq(budgets.id, BigInt(data.budgetId)));
 
     if (!budget) throw new Error('Budget not found.');
 
@@ -65,7 +65,7 @@ export async function createExpense(data: {
     await tx
       .update(budgets)
       .set({ currentAmount: String(newAmount) })
-      .where(eq(budgets.id, data.budgetId));
+      .where(eq(budgets.id, BigInt(data.budgetId)));
 
     // 3. Create the expense
     const [expense] = await tx
@@ -95,7 +95,7 @@ export async function deleteExpense(id: number) {
     const [expense] = await tx
       .select()
       .from(expenses)
-      .where(eq(expenses.id, id));
+      .where(eq(expenses.id, BigInt(id)));
 
     if (!expense) throw new Error('Expense not found.');
 
@@ -104,17 +104,117 @@ export async function deleteExpense(id: number) {
       const [budget] = await tx
         .select()
         .from(budgets)
-        .where(eq(budgets.id, expense.budgetId));
+        .where(eq(budgets.id, BigInt(expense.budgetId)));
 
       if (budget) {
         await tx
           .update(budgets)
           .set({ currentAmount: String(Number(budget.currentAmount) + Number(expense.amount)) })
-          .where(eq(budgets.id, expense.budgetId));
+          .where(eq(budgets.id, BigInt(expense.budgetId)));
       }
     }
 
-    await tx.delete(expenses).where(eq(expenses.id, id));
+    await tx.delete(expenses).where(eq(expenses.id, BigInt(id)));
+  });
+}
+
+/**
+ * Updates an expense and atomically adjusts the linked budget(s).
+ *
+ * @param id - Expense ID to update
+ * @param data - Updated expense fields
+ */
+export async function updateExpense(id: number, data: {
+  categoryId: number;
+  budgetId: number;
+  description: string;
+  amount: number;
+  spendingType: string;
+  dateSpent: string;
+}) {
+  return db.transaction(async (tx) => {
+    const [oldExpense] = await tx
+      .select()
+      .from(expenses)
+      .where(eq(expenses.id, BigInt(id)));
+
+    if (!oldExpense) throw new Error('Expense not found.');
+
+    const oldAmount = Number(oldExpense.amount);
+    const newAmount = data.amount;
+
+    if (oldExpense.budgetId !== data.budgetId) {
+      // 1. Restore old budget
+      if (oldExpense.budgetId) {
+        const [oldBudget] = await tx
+          .select()
+          .from(budgets)
+          .where(eq(budgets.id, BigInt(oldExpense.budgetId)));
+          
+        if (oldBudget) {
+          await tx
+            .update(budgets)
+            .set({ currentAmount: String(Number(oldBudget.currentAmount) + oldAmount) })
+            .where(eq(budgets.id, BigInt(oldExpense.budgetId)));
+        }
+      }
+
+      // 2. Deduct from new budget
+      const [newBudget] = await tx
+        .select()
+        .from(budgets)
+        .where(eq(budgets.id, BigInt(data.budgetId)));
+
+      if (!newBudget) throw new Error('New budget not found.');
+
+      const newBudgetAmount = Number(newBudget.currentAmount) - newAmount;
+      if (newBudgetAmount < 0) {
+        throw new Error(`Insufficient budget. Available: ${Math.floor(Number(newBudget.currentAmount))}`);
+      }
+
+      await tx
+        .update(budgets)
+        .set({ currentAmount: String(newBudgetAmount) })
+        .where(eq(budgets.id, BigInt(data.budgetId)));
+    } else {
+      // Budget is the same, just adjust the difference
+      const [budget] = await tx
+        .select()
+        .from(budgets)
+        .where(eq(budgets.id, BigInt(data.budgetId)));
+
+      if (!budget) throw new Error('Budget not found.');
+
+      // Restore old amount, deduct new amount
+      const currentBalance = Number(budget.currentAmount);
+      const updatedBalance = currentBalance + oldAmount - newAmount;
+
+      if (updatedBalance < 0) {
+        throw new Error(`Insufficient budget. You can only increase this expense by ${Math.floor(currentBalance)}`);
+      }
+
+      await tx
+        .update(budgets)
+        .set({ currentAmount: String(updatedBalance) })
+        .where(eq(budgets.id, BigInt(data.budgetId)));
+    }
+
+    // 3. Update the expense record
+    const [updatedExpense] = await tx
+      .update(expenses)
+      .set({
+        categoryId: data.categoryId,
+        budgetId: data.budgetId,
+        description: data.description,
+        amount: String(data.amount),
+        spendingType: data.spendingType,
+        dateSpent: data.dateSpent,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(expenses.id, BigInt(id)))
+      .returning();
+
+    return updatedExpense;
   });
 }
 

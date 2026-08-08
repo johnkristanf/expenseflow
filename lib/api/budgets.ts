@@ -13,7 +13,7 @@ export type Budget = {
 export const budgetsApi = {
   getAll: (component?: 'card' | 'dropdown') => {
     const query = component ? `?component=${component}` : '';
-    return apiFetch<any[]>(`/budgets${query}`);
+    return apiFetch<Budget[]>(`/budgets${query}`);
   },
 
   create: (data: { name: string; totalAmount: number; budgetPeriod: string }) => 

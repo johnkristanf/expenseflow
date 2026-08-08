@@ -32,8 +32,8 @@ export async function PUT(
     try {
       const saving = await updateSaving(savingId, parsed.data);
       return NextResponse.json(saving);
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }

@@ -15,8 +15,8 @@ export async function GET(req: Request) {
     try {
       const data = await getMonthlyExpenses(month, year);
       return NextResponse.json(data);
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }

@@ -32,8 +32,8 @@ export async function POST(
     try {
       const saving = await adjustSaving(savingId, parsed.data, user.id);
       return NextResponse.json(saving);
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }

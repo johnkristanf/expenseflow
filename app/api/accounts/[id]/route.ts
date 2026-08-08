@@ -31,8 +31,8 @@ export async function PUT(
     try {
       const account = await updateAccount(accountId, user.id, parsed.data);
       return NextResponse.json(account);
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }
@@ -52,8 +52,8 @@ export async function DELETE(
     try {
       await deleteAccount(accountId, user.id);
       return NextResponse.json({ message: 'Account deleted successfully' });
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }

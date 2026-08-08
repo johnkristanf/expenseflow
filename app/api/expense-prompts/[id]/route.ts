@@ -29,8 +29,8 @@ export async function PUT(
     try {
       const prompt = await updatePrompt(promptId, user.id, parsed.data.promptText);
       return NextResponse.json(prompt);
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }
@@ -50,8 +50,8 @@ export async function DELETE(
     try {
       await deletePrompt(promptId, user.id);
       return NextResponse.json({ message: 'Prompt deleted successfully' });
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }

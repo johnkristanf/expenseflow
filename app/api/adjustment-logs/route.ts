@@ -20,8 +20,8 @@ export async function GET(req: Request) {
     try {
       const logs = await getLogs(domain, numericId, user.id);
       return NextResponse.json(logs);
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }

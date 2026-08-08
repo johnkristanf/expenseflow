@@ -27,9 +27,22 @@ export const expensesApi = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+
+  update: (id: number, data: {
+    categoryId: number;
+    budgetId: number;
+    description: string;
+    amount: number;
+    spendingType: string;
+    dateSpent: string;
+  }) => apiFetch<Expense>(`/expenses/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
   
   delete: (id: number) => 
     apiFetch<{ message: string }>(`/expenses/${id}`, { method: 'DELETE' }),
+
 
   getMonthly: (month: string, year: string) => 
     apiFetch<{ total: string }>(`/expenses/monthly?month=${month}&year=${year}`),

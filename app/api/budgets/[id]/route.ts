@@ -31,8 +31,8 @@ export async function PUT(
     try {
       const budget = await updateBudget(budgetId, parsed.data);
       return NextResponse.json(budget);
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
     }
   });
 }
