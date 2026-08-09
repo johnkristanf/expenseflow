@@ -15,9 +15,10 @@ export async function getCategories() {
  * @param data - `name` (required) and optional `notes`
  */
 export async function createCategory(data: { name: string; notes?: string | null }) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [category] = await db
     .insert(categories)
-    .values({ name: data.name, notes: data.notes ?? null })
+    .values({ name: data.name, notes: data.notes ?? null, createdAt: now, updatedAt: now })
     .returning();
 
   return category;

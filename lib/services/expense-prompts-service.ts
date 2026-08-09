@@ -13,9 +13,10 @@ export async function getPrompts(userId: string) {
 
 /** Creates a new expense prompt for a user. */
 export async function createPrompt(userId: string, promptText: string) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [prompt] = await db
     .insert(expensePrompts)
-    .values({ userId: userId as unknown as number, promptText })
+    .values({ userId: userId as unknown as number, promptText, createdAt: now, updatedAt: now })
     .returning();
   return prompt;
 }
@@ -25,9 +26,10 @@ export async function createPrompt(userId: string, promptText: string) {
  * @throws If not found or does not belong to user
  */
 export async function updatePrompt(id: number, userId: string, promptText: string) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [updated] = await db
     .update(expensePrompts)
-    .set({ promptText })
+    .set({ promptText, updatedAt: now })
     .where(and(eq(expensePrompts.id, id), eq(expensePrompts.userId, userId as unknown as number)))
     .returning();
   if (!updated) throw new Error('Prompt not found.');

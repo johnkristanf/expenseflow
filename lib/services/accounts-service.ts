@@ -9,7 +9,7 @@ export async function getAccounts(userId: string) {
   return db
     .select({ id: accounts.id, name: accounts.name, type: accounts.type, balance: accounts.balance })
     .from(accounts)
-    .where(eq(accounts.userId, userId as unknown as number))
+    .where(eq(accounts.userId, userId))
     .orderBy(desc(accounts.createdAt));
 }
 
@@ -17,9 +17,10 @@ export async function getAccounts(userId: string) {
  * Creates a new account for a user.
  */
 export async function createAccount(userId: string, data: { name: string; type: string; balance: number }) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [account] = await db
     .insert(accounts)
-    .values({ userId: userId as unknown as number, name: data.name, type: data.type, balance: String(data.balance) })
+    .values({ userId, name: data.name, type: data.type, balance: String(data.balance), createdAt: now, updatedAt: now })
     .returning();
   return account;
 }
@@ -29,10 +30,11 @@ export async function createAccount(userId: string, data: { name: string; type: 
  * @throws If account is not found
  */
 export async function updateAccount(id: number, userId: string, data: { name: string; type: string; balance: number }) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [updated] = await db
     .update(accounts)
-    .set({ name: data.name, type: data.type, balance: String(data.balance) })
-    .where(and(eq(accounts.id, id), eq(accounts.userId, userId as unknown as number)))
+    .set({ name: data.name, type: data.type, balance: String(data.balance), updatedAt: now })
+    .where(and(eq(accounts.id, id), eq(accounts.userId, userId)))
     .returning();
   if (!updated) throw new Error('Account not found.');
   return updated;
@@ -45,7 +47,7 @@ export async function updateAccount(id: number, userId: string, data: { name: st
 export async function deleteAccount(id: number, userId: string) {
   const [deleted] = await db
     .delete(accounts)
-    .where(and(eq(accounts.id, id), eq(accounts.userId, userId as unknown as number)))
+    .where(and(eq(accounts.id, id), eq(accounts.userId, userId)))
     .returning();
   if (!deleted) throw new Error('Account not found.');
 }
@@ -58,7 +60,7 @@ export async function adjustAccountBalance(id: number, userId: string, data: { a
   const [account] = await db
     .select()
     .from(accounts)
-    .where(and(eq(accounts.id, id), eq(accounts.userId, userId as unknown as number)));
+    .where(and(eq(accounts.id, id), eq(accounts.userId, userId)));
 
   if (!account) throw new Error('Account not found.');
 
@@ -69,9 +71,10 @@ export async function adjustAccountBalance(id: number, userId: string, data: { a
 
   if (newBalance < 0) throw new Error('Insufficient account balance for this deduction.');
 
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [updated] = await db
     .update(accounts)
-    .set({ balance: String(newBalance) })
+    .set({ balance: String(newBalance), updatedAt: now })
     .where(eq(accounts.id, id))
     .returning();
 

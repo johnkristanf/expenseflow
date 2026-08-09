@@ -5,7 +5,6 @@ export type Budget = {
   name: string;
   currentAmount: string;
   totalAmount: string;
-  budgetPeriod: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -16,13 +15,13 @@ export const budgetsApi = {
     return apiFetch<Budget[]>(`/budgets${query}`);
   },
 
-  create: (data: { name: string; totalAmount: number; budgetPeriod: string }) => 
+  create: (data: { name: string; totalAmount: number }) => 
     apiFetch<Budget>('/budgets', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  update: (id: number, data: { name: string; totalAmount: number; budgetPeriod: string }) => 
+  update: (id: number, data: { name: string; totalAmount: number }) => 
     apiFetch<Budget>(`/budgets/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -33,4 +32,7 @@ export const budgetsApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  delete: (id: number) =>
+    apiFetch<Budget>(`/budgets/${id}`, { method: 'DELETE' }),
 };

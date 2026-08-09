@@ -37,7 +37,7 @@ This document contains general guidelines, architecture overview, commands, and 
 ### React & Next.js Best Practices
 - **Server vs Client Components**: Default to Server Components. Add `"use client"` only when necessary (e.g., for interactivity, state, or DOM event listeners).
 - **Function Definitions**: Use standard function declarations for components (e.g., `export default function MyComponent() { ... }`) to leverage better debugging and component naming. Use arrow functions for callbacks.
-- **Data Fetching**: Use Next.js native `fetch` with caching/revalidation or server actions for mutations.
+- **Data Fetching**: Use **React Query** (`useQuery`, `useMutation`) for all client-side API requests. Use Next.js native `fetch` with caching/revalidation for Server Components, and server actions for server-side mutations.
 
 ### Error Handling
 - Use `try/catch` blocks for asynchronous operations.

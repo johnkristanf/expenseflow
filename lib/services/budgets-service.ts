@@ -8,7 +8,6 @@ type BudgetCardView = {
   name: string;
   currentAmount: string;
   totalAmount: string;
-  budgetPeriod: string;
 };
 
 /** Shape returned for the 'dropdown' component view */
@@ -27,7 +26,6 @@ export async function getBudgets(component?: string) {
         name: budgets.name,
         currentAmount: budgets.currentAmount,
         totalAmount: budgets.totalAmount,
-        budgetPeriod: budgets.budgetPeriod,
       })
       .from(budgets)
       .orderBy(desc(budgets.createdAt)) as Promise<BudgetCardView[]>;
@@ -49,15 +47,17 @@ export async function getBudgets(component?: string) {
 export async function createBudget(data: {
   name: string;
   totalAmount: number;
-  budgetPeriod: string;
 }) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
   const [budget] = await db
     .insert(budgets)
     .values({
       name: data.name,
       currentAmount: '0',
       totalAmount: String(data.totalAmount),
-      budgetPeriod: data.budgetPeriod,
+      createdAt: now,
+      updatedAt: now,
     })
     .returning();
 
@@ -74,15 +74,17 @@ export async function createBudget(data: {
  */
 export async function updateBudget(
   id: number,
-  data: { name: string; totalAmount: number; budgetPeriod: string }
+  data: { name: string; totalAmount: number }
 ) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
   const [updated] = await db
     .update(budgets)
     .set({
       name: data.name,
       currentAmount: String(data.totalAmount),
       totalAmount: String(data.totalAmount),
-      budgetPeriod: data.budgetPeriod,
+      updatedAt: now,
     })
     .where(eq(budgets.id, id))
     .returning();
@@ -129,7 +131,7 @@ export async function adjustBudget(
         .where(eq(budgets.id, id));
 
       await tx.insert(adjustmentLogs).values({
-        userId: userId as unknown as number,
+        userId,
         loggableType: 'App\\Models\\Budgets',
         loggableId: id,
         type: 'decrement',
@@ -145,7 +147,7 @@ export async function adjustBudget(
         .from(accounts)
         .where(eq(accounts.id, data.accountId));
 
-      if (!account || account.userId !== (userId as unknown as number)) {
+      if (!account || account.userId !== userId) {
         throw new Error('Account not found.');
       }
 
@@ -165,7 +167,7 @@ export async function adjustBudget(
         .where(eq(budgets.id, id));
 
       await tx.insert(adjustmentLogs).values({
-        userId: userId as unknown as number,
+        userId,
         loggableType: 'App\\Models\\Budgets',
         loggableId: id,
         type: 'increment',
@@ -177,4 +179,20 @@ export async function adjustBudget(
     const [fresh] = await tx.select().from(budgets).where(eq(budgets.id, id));
     return fresh;
   });
+}
+
+/**
+ * Deletes a budget by ID.
+ *
+ * @param id - Budget ID
+ * @throws If the budget is not found
+ */
+export async function deleteBudget(id: number) {
+  const [deleted] = await db
+    .delete(budgets)
+    .where(eq(budgets.id, id))
+    .returning();
+
+  if (!deleted) throw new Error('Budget not found or already deleted.');
+  return deleted;
 }

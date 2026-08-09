@@ -27,12 +27,15 @@ export async function createIncome(data: {
   amount: number;
   dateAcquired: string;
 }) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [record] = await db
     .insert(income)
     .values({
       source: data.source,
       amount: String(data.amount),
       dateAcquired: data.dateAcquired,
+      createdAt: now,
+      updatedAt: now,
     })
     .returning();
 

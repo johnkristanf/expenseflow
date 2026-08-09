@@ -31,6 +31,7 @@ export async function createSaving(data: {
   startDate: string;
   targetDate: string;
 }) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [saving] = await db
     .insert(savings)
     .values({
@@ -39,6 +40,8 @@ export async function createSaving(data: {
       currentAmount: String(data.currentAmount ?? 0),
       startDate: data.startDate,
       targetDate: data.targetDate,
+      createdAt: now,
+      updatedAt: now,
     })
     .returning();
 
@@ -59,6 +62,7 @@ export async function updateSaving(
     targetDate: string;
   }
 ) {
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
   const [updated] = await db
     .update(savings)
     .set({
@@ -66,6 +70,7 @@ export async function updateSaving(
       targetAmount: String(data.targetAmount),
       startDate: data.startDate,
       targetDate: data.targetDate,
+      updatedAt: now,
     })
     .where(eq(savings.id, id))
     .returning();
@@ -106,9 +111,11 @@ export async function adjustSaving(
         throw new Error('Insufficient savings balance for this deduction.');
       }
 
+      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
       await tx
         .update(savings)
-        .set({ currentAmount: String(newBalance) })
+        .set({ currentAmount: String(newBalance), updatedAt: now })
         .where(eq(savings.id, id));
 
       await tx.insert(adjustmentLogs).values({
@@ -118,6 +125,8 @@ export async function adjustSaving(
         type: 'decrement',
         amount: String(amount),
         reason: data.reason ?? null,
+        createdAt: now,
+        updatedAt: now,
       });
     } else {
       if (!data.accountId) throw new Error('account_id is required for increment.');
@@ -136,14 +145,16 @@ export async function adjustSaving(
         throw new Error('Insufficient account balance for this addition.');
       }
 
+      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
       await tx
         .update(accounts)
-        .set({ balance: String(newAccountBalance) })
+        .set({ balance: String(newAccountBalance), updatedAt: now })
         .where(eq(accounts.id, data.accountId));
 
       await tx
         .update(savings)
-        .set({ currentAmount: String(Number(saving.currentAmount) + amount) })
+        .set({ currentAmount: String(Number(saving.currentAmount) + amount), updatedAt: now })
         .where(eq(savings.id, id));
 
       await tx.insert(adjustmentLogs).values({
@@ -153,6 +164,8 @@ export async function adjustSaving(
         type: 'increment',
         amount: String(amount),
         accountId: data.accountId,
+        createdAt: now,
+        updatedAt: now,
       });
     }
 

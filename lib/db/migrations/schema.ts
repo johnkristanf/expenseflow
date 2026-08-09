@@ -14,6 +14,7 @@ import {
   smallint,
   date,
   check,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -36,19 +37,11 @@ export const expensePrompts = pgTable(
   "expense_prompts",
   {
     id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    userId: bigint("user_id", { mode: "number" }).notNull(),
+    userId: uuid("user_id").notNull(),
     promptText: text("prompt_text").notNull(),
     createdAt: timestamp("created_at", { mode: "string" }),
     updatedAt: timestamp("updated_at", { mode: "string" }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "expense_prompts_user_id_foreign",
-    }).onDelete("cascade"),
-  ],
+  }
 );
 
 export const accounts = pgTable(
@@ -58,18 +51,10 @@ export const accounts = pgTable(
     name: varchar({ length: 255 }).notNull(),
     type: varchar({ length: 255 }).notNull(),
     balance: numeric({ precision: 15, scale: 2 }).default("0").notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    userId: bigint("user_id", { mode: "number" }).notNull(),
+    userId: uuid("user_id").notNull(),
     createdAt: timestamp("created_at", { mode: "string" }),
     updatedAt: timestamp("updated_at", { mode: "string" }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "accounts_user_id_foreign",
-    }).onDelete("cascade"),
-  ],
+  }
 );
 
 export const migrations = pgTable("migrations", {
@@ -250,7 +235,6 @@ export const budgets = pgTable("budgets", {
     .default("0")
     .notNull(),
   totalAmount: numeric("total_amount", { precision: 15, scale: 2 }).notNull(),
-  budgetPeriod: date("budget_period").notNull(),
   createdAt: timestamp("created_at", { mode: "string" }),
   updatedAt: timestamp("updated_at", { mode: "string" }),
 });
@@ -259,8 +243,7 @@ export const adjustmentLogs = pgTable(
   "adjustment_logs",
   {
     id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    userId: bigint("user_id", { mode: "number" }).notNull(),
+    userId: uuid("user_id").notNull(),
     loggableType: varchar("loggable_type", { length: 255 }).notNull(),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     loggableId: bigint("loggable_id", { mode: "number" }).notNull(),
@@ -283,11 +266,6 @@ export const adjustmentLogs = pgTable(
       foreignColumns: [accounts.id],
       name: "adjustment_logs_account_id_foreign",
     }).onDelete("set null"),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [users.id],
-      name: "adjustment_logs_user_id_foreign",
-    }).onDelete("cascade"),
     check(
       "adjustment_logs_type_check",
       sql`(type)::text = ANY ((ARRAY['increment'::character varying, 'decrement'::character varying])::text[])`,

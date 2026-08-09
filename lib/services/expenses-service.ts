@@ -61,10 +61,12 @@ export async function createExpense(data: {
       throw new Error(`Insufficient budget. Available: ${Math.floor(Number(budget.currentAmount))}`);
     }
 
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
     // 2. Deduct from budget
     await tx
       .update(budgets)
-      .set({ currentAmount: String(newAmount) })
+      .set({ currentAmount: String(newAmount), updatedAt: now })
       .where(eq(budgets.id, BigInt(data.budgetId)));
 
     // 3. Create the expense
@@ -77,6 +79,8 @@ export async function createExpense(data: {
         amount: String(data.amount),
         spendingType: data.spendingType,
         dateSpent: data.dateSpent,
+        createdAt: now,
+        updatedAt: now,
       })
       .returning();
 
@@ -107,9 +111,10 @@ export async function deleteExpense(id: number) {
         .where(eq(budgets.id, BigInt(expense.budgetId)));
 
       if (budget) {
+        const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
         await tx
           .update(budgets)
-          .set({ currentAmount: String(Number(budget.currentAmount) + Number(expense.amount)) })
+          .set({ currentAmount: String(Number(budget.currentAmount) + Number(expense.amount)), updatedAt: now })
           .where(eq(budgets.id, BigInt(expense.budgetId)));
       }
     }
@@ -143,6 +148,8 @@ export async function updateExpense(id: number, data: {
     const oldAmount = Number(oldExpense.amount);
     const newAmount = data.amount;
 
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
     if (oldExpense.budgetId !== data.budgetId) {
       // 1. Restore old budget
       if (oldExpense.budgetId) {
@@ -154,7 +161,7 @@ export async function updateExpense(id: number, data: {
         if (oldBudget) {
           await tx
             .update(budgets)
-            .set({ currentAmount: String(Number(oldBudget.currentAmount) + oldAmount) })
+            .set({ currentAmount: String(Number(oldBudget.currentAmount) + oldAmount), updatedAt: now })
             .where(eq(budgets.id, BigInt(oldExpense.budgetId)));
         }
       }
@@ -174,7 +181,7 @@ export async function updateExpense(id: number, data: {
 
       await tx
         .update(budgets)
-        .set({ currentAmount: String(newBudgetAmount) })
+        .set({ currentAmount: String(newBudgetAmount), updatedAt: now })
         .where(eq(budgets.id, BigInt(data.budgetId)));
     } else {
       // Budget is the same, just adjust the difference
@@ -195,7 +202,7 @@ export async function updateExpense(id: number, data: {
 
       await tx
         .update(budgets)
-        .set({ currentAmount: String(updatedBalance) })
+        .set({ currentAmount: String(updatedBalance), updatedAt: now })
         .where(eq(budgets.id, BigInt(data.budgetId)));
     }
 
@@ -209,7 +216,7 @@ export async function updateExpense(id: number, data: {
         amount: String(data.amount),
         spendingType: data.spendingType,
         dateSpent: data.dateSpent,
-        updatedAt: new Date().toISOString(),
+        updatedAt: now,
       })
       .where(eq(expenses.id, BigInt(id)))
       .returning();

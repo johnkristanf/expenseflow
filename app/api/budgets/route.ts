@@ -6,7 +6,6 @@ import { z } from 'zod';
 const createBudgetSchema = z.object({
   name: z.string().min(1, "Name is required"),
   totalAmount: z.number().positive(),
-  budgetPeriod: z.string().min(1, "Budget period is required"),
 });
 
 export async function GET(req: Request) {

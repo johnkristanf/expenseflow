@@ -6,7 +6,7 @@ import Link from "next/link"
 import {
   LayoutDashboard,
   ReceiptText,
-  Wallet,
+  PiggyBank,
   Settings,
   CircleDollarSign,
 } from "lucide-react"
@@ -36,9 +36,9 @@ const navItems = [
     icon: ReceiptText,
   },
   {
-    title: "Wallet",
-    url: "/wallet",
-    icon: Wallet,
+    title: "Budgets",
+    url: "/budgets",
+    icon: PiggyBank,
   },
   {
     title: "Settings",
