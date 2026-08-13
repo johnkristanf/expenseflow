@@ -17,7 +17,7 @@ export interface ConfirmDialogProps {
   /** The element that opens the dialog */
   trigger: React.ReactNode
   title?: string
-  description?: string
+  description?: React.ReactNode
   confirmLabel?: string
   cancelLabel?: string
   /** Called when the user confirms. Return true to close, throw/return false to keep open. */
