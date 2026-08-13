@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withAuth } from '@/lib/utils/auth-helpers';
-import { updateSaving } from '@/lib/services/savings-service';
+import { updateSaving, deleteSaving } from '@/lib/services/savings-service';
 import { z } from 'zod';
 
 const updateSavingSchema = z.object({
@@ -34,6 +34,27 @@ export async function PUT(
       return NextResponse.json(saving);
     } catch (e: unknown) {
       return NextResponse.json({ error: (e instanceof Error ? e.message : "Unknown error") }, { status: 400 });
+    }
+  });
+}
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return withAuth(async () => {
+    const { id } = await params;
+    const savingId = parseInt(id, 10);
+
+    if (isNaN(savingId)) {
+      return NextResponse.json({ error: 'Invalid saving ID' }, { status: 400 });
+    }
+
+    try {
+      await deleteSaving(savingId);
+      return NextResponse.json({ message: 'Savings record deleted successfully' });
+    } catch (e: unknown) {
+      return NextResponse.json({ error: (e instanceof Error ? e.message : 'Unknown error') }, { status: 400 });
     }
   });
 }

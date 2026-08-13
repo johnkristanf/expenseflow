@@ -1,11 +1,11 @@
-import { db } from '@/lib/db';
-import { adjustmentLogs, accounts } from '@/lib/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { db } from "@/lib/db";
+import { adjustmentLogs, accounts } from "@/lib/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 
 /** Maps URL domain param to the PHP class name stored in loggable_type */
 const DOMAIN_TYPE_MAP: Record<string, string> = {
-  budgets: 'App\\Models\\Budgets',
-  savings: 'App\\Models\\Savings',
+  budgets: "App\\Models\\Budgets",
+  savings: "App\\Models\\Savings",
 };
 
 /**
@@ -19,7 +19,7 @@ const DOMAIN_TYPE_MAP: Record<string, string> = {
  */
 export async function getLogs(domain: string, id: number, userId: string) {
   const loggableType = DOMAIN_TYPE_MAP[domain];
-  if (!loggableType) throw new Error('Invalid domain.');
+  if (!loggableType) throw new Error("Invalid domain.");
 
   return db
     .select({
@@ -39,8 +39,8 @@ export async function getLogs(domain: string, id: number, userId: string) {
       and(
         eq(adjustmentLogs.loggableType, loggableType),
         eq(adjustmentLogs.loggableId, id),
-        eq(adjustmentLogs.userId, userId as unknown as number)
-      )
+        eq(adjustmentLogs.userId, userId as unknown as number),
+      ),
     )
     .orderBy(desc(adjustmentLogs.createdAt));
 }

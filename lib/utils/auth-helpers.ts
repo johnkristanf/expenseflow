@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import type { User } from '@supabase/supabase-js';
+import { NextResponse } from "next/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { User } from "@supabase/supabase-js";
 
 /**
  * Verifies the Supabase session from cookies inside a Route Handler.
@@ -16,10 +16,13 @@ import type { User } from '@supabase/supabase-js';
  */
 export async function requireAuth(): Promise<User> {
   const supabase = await createSupabaseServerClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
   if (error || !user) {
-    throw NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    throw NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   return user;
@@ -30,7 +33,7 @@ export async function requireAuth(): Promise<User> {
  * is returned directly, and any other error returns a 500.
  */
 export async function withAuth<T>(
-  handler: (user: User) => Promise<NextResponse<T>>
+  handler: (user: User) => Promise<NextResponse<T>>,
 ): Promise<NextResponse> {
   try {
     const user = await requireAuth();
@@ -38,6 +41,9 @@ export async function withAuth<T>(
   } catch (e) {
     if (e instanceof NextResponse) return e;
     console.error(e);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

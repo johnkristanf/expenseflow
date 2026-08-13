@@ -59,10 +59,10 @@ interface ExpenseFilterProps {
 
 const FILTER_TYPES: { type: FilterType; label: string; icon: React.ElementType }[] = [
   { type: "spendingType", label: "Spending Type", icon: LayoutList },
-  { type: "category",     label: "Category",      icon: Tag },
-  { type: "budget",       label: "Budget",        icon: Wallet },
-  { type: "dateRange",    label: "Date Range",    icon: Calendar },
-  { type: "amount",       label: "Amount",        icon: DollarSign },
+  { type: "category", label: "Category", icon: Tag },
+  { type: "budget", label: "Budget", icon: Wallet },
+  { type: "dateRange", label: "Date Range", icon: Calendar },
+  { type: "amount", label: "Amount", icon: DollarSign },
 ]
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -79,9 +79,9 @@ export function ExpenseFilter({
   // Local state for the active filter panel inputs
   const [tempValue, setTempValue] = React.useState("")
   const [tempDateFrom, setTempDateFrom] = React.useState("")
-  const [tempDateTo, setTempDateTo]   = React.useState("")
-  const [tempAmtMin, setTempAmtMin]   = React.useState("")
-  const [tempAmtMax, setTempAmtMax]   = React.useState("")
+  const [tempDateTo, setTempDateTo] = React.useState("")
+  const [tempAmtMin, setTempAmtMin] = React.useState("")
+  const [tempAmtMax, setTempAmtMax] = React.useState("")
 
   function resetPanel() {
     setSelectedType(null)

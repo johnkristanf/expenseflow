@@ -10,9 +10,19 @@ export type Category = {
 
 export const categoriesApi = {
   getAll: () => apiFetch<Category[]>('/categories'),
-  create: (data: { name: string; notes?: string }) => 
+
+  create: (data: { name: string; notes?: string | null }) =>
     apiFetch<Category>('/categories', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  update: (id: number, data: { name: string; notes?: string | null }) =>
+    apiFetch<Category>(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: number) =>
+    apiFetch<{ message: string }>(`/categories/${id}`, { method: 'DELETE' }),
 };

@@ -26,6 +26,9 @@ export const savingsApi = {
       body: JSON.stringify(data),
     }),
 
+  delete: (id: number) =>
+    apiFetch<{ message: string }>(`/savings/${id}`, { method: 'DELETE' }),
+
   adjust: (id: number, data: { amount: number; type: 'increment' | 'decrement'; accountId?: number; reason?: string }) => 
     apiFetch<Saving>(`/savings/${id}/adjust`, {
       method: 'POST',

@@ -9,6 +9,10 @@ import {
   PiggyBank,
   Settings,
   CircleDollarSign,
+  Tag,
+  Landmark,
+  TrendingUp,
+  Target,
 } from "lucide-react"
 import { usePage } from "@/contexts/page-context"
 
@@ -31,14 +35,34 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
+    title: "Accounts",
+    url: "/accounts",
+    icon: Landmark,
+  },
+  {
+    title: "Income",
+    url: "/income",
+    icon: TrendingUp,
+  },
+  {
     title: "Expenses",
     url: "/expenses",
     icon: ReceiptText,
   },
   {
+    title: "Savings",
+    url: "/savings",
+    icon: Target,
+  },
+  {
     title: "Budgets",
     url: "/budgets",
     icon: PiggyBank,
+  },
+  {
+    title: "Categories",
+    url: "/categories",
+    icon: Tag,
   },
   {
     title: "Settings",

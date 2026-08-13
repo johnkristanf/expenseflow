@@ -21,7 +21,7 @@ import { sql } from "drizzle-orm";
 export const users = pgTable(
   "users",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     name: varchar({ length: 255 }).notNull(),
     email: varchar({ length: 255 }).notNull(),
     emailVerifiedAt: timestamp("email_verified_at", { mode: "string" }),
@@ -36,7 +36,7 @@ export const users = pgTable(
 export const expensePrompts = pgTable(
   "expense_prompts",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     userId: uuid("user_id").notNull(),
     promptText: text("prompt_text").notNull(),
     createdAt: timestamp("created_at", { mode: "string" }),
@@ -47,7 +47,7 @@ export const expensePrompts = pgTable(
 export const accounts = pgTable(
   "accounts",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     name: varchar({ length: 255 }).notNull(),
     type: varchar({ length: 255 }).notNull(),
     balance: numeric({ precision: 15, scale: 2 }).default("0").notNull(),
@@ -73,7 +73,7 @@ export const sessions = pgTable(
   "sessions",
   {
     id: varchar({ length: 255 }).primaryKey().notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    // You can use { mode: "number" } if numbers are exceeding js number limitations
     userId: bigint("user_id", { mode: "number" }),
     ipAddress: varchar("ip_address", { length: 45 }),
     userAgent: text("user_agent"),
@@ -101,7 +101,7 @@ export const cacheLocks = pgTable("cache_locks", {
 export const jobs = pgTable(
   "jobs",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     queue: varchar({ length: 255 }).notNull(),
     payload: text().notNull(),
     attempts: smallint().notNull(),
@@ -130,7 +130,7 @@ export const jobBatches = pgTable("job_batches", {
 export const failedJobs = pgTable(
   "failed_jobs",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     uuid: varchar({ length: 255 }).notNull(),
     connection: text().notNull(),
     queue: text().notNull(),
@@ -146,9 +146,9 @@ export const failedJobs = pgTable(
 export const personalAccessTokens = pgTable(
   "personal_access_tokens",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     tokenableType: varchar("tokenable_type", { length: 255 }).notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    // You can use { mode: "number" } if numbers are exceeding js number limitations
     tokenableId: bigint("tokenable_id", { mode: "number" }).notNull(),
     name: text().notNull(),
     token: varchar({ length: 64 }).notNull(),
@@ -169,7 +169,7 @@ export const personalAccessTokens = pgTable(
 );
 
 export const categories = pgTable("categories", {
-  id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+  id: bigserial({ mode: "number" }).primaryKey().notNull(),
   name: varchar({ length: 255 }).notNull(),
   notes: text(),
   createdAt: timestamp("created_at", { mode: "string" }),
@@ -177,7 +177,7 @@ export const categories = pgTable("categories", {
 });
 
 export const savings = pgTable("savings", {
-  id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+  id: bigserial({ mode: "number" }).primaryKey().notNull(),
   goalName: varchar("goal_name", { length: 255 }).notNull(),
   targetAmount: numeric("target_amount", { precision: 15, scale: 2 }).notNull(),
   currentAmount: numeric("current_amount", {
@@ -191,7 +191,7 @@ export const savings = pgTable("savings", {
 });
 
 export const income = pgTable("income", {
-  id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+  id: bigserial({ mode: "number" }).primaryKey().notNull(),
   source: varchar({ length: 255 }).notNull(),
   amount: numeric({ precision: 15, scale: 2 }).default("0").notNull(),
   dateAcquired: date("date_acquired").notNull(),
@@ -202,16 +202,16 @@ export const income = pgTable("income", {
 export const expenses = pgTable(
   "expenses",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     description: text(),
     amount: numeric({ precision: 10, scale: 2 }).notNull(),
     spendingType: varchar("spending_type", { length: 255 }).notNull(),
     dateSpent: date("date_spent").notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    // You can use { mode: "number" } if numbers are exceeding js number limitations
     categoryId: bigint("category_id", { mode: "number" }),
     createdAt: timestamp("created_at", { mode: "string" }),
     updatedAt: timestamp("updated_at", { mode: "string" }),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    // You can use { mode: "number" } if numbers are exceeding js number limitations
     budgetId: bigint("budget_id", { mode: "number" }),
   },
   (table) => [
@@ -229,7 +229,7 @@ export const expenses = pgTable(
 );
 
 export const budgets = pgTable("budgets", {
-  id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+  id: bigserial({ mode: "number" }).primaryKey().notNull(),
   name: varchar({ length: 255 }).notNull(),
   currentAmount: numeric("current_amount", { precision: 15, scale: 2 })
     .default("0")
@@ -242,14 +242,14 @@ export const budgets = pgTable("budgets", {
 export const adjustmentLogs = pgTable(
   "adjustment_logs",
   {
-    id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+    id: bigserial({ mode: "number" }).primaryKey().notNull(),
     userId: uuid("user_id").notNull(),
     loggableType: varchar("loggable_type", { length: 255 }).notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    // You can use { mode: "number" } if numbers are exceeding js number limitations
     loggableId: bigint("loggable_id", { mode: "number" }).notNull(),
     type: varchar({ length: 255 }).notNull(),
     amount: numeric({ precision: 15, scale: 2 }).notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    // You can use { mode: "number" } if numbers are exceeding js number limitations
     accountId: bigint("account_id", { mode: "number" }),
     reason: varchar({ length: 255 }),
     createdAt: timestamp("created_at", { mode: "string" }),

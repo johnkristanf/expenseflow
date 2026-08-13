@@ -1,6 +1,6 @@
-import { db } from '@/lib/db';
-import { savings, accounts, adjustmentLogs } from '@/lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { db } from "@/lib/db";
+import { savings, accounts, adjustmentLogs } from "@/lib/db/schema";
+import { eq, desc } from "drizzle-orm";
 
 /**
  * Fetches all savings goals, ordered by creation date descending.
@@ -31,7 +31,7 @@ export async function createSaving(data: {
   startDate: string;
   targetDate: string;
 }) {
-  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  const now = new Date().toISOString().replace("T", " ").substring(0, 19);
   const [saving] = await db
     .insert(savings)
     .values({
@@ -60,9 +60,9 @@ export async function updateSaving(
     targetAmount: number;
     startDate: string;
     targetDate: string;
-  }
+  },
 ) {
-  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  const now = new Date().toISOString().replace("T", " ").substring(0, 19);
   const [updated] = await db
     .update(savings)
     .set({
@@ -75,8 +75,24 @@ export async function updateSaving(
     .where(eq(savings.id, id))
     .returning();
 
-  if (!updated) throw new Error('Savings record not found or update failed.');
+  if (!updated) throw new Error("Savings record not found or update failed.");
   return updated;
+}
+
+/**
+ * Deletes a savings goal by ID.
+ *
+ * @param id - Saving ID to delete
+ * @throws If the record is not found
+ */
+export async function deleteSaving(id: number) {
+  const [deleted] = await db
+    .delete(savings)
+    .where(eq(savings.id, id))
+    .returning();
+
+  if (!deleted) throw new Error("Savings record not found.");
+  return deleted;
 }
 
 /**
@@ -93,25 +109,25 @@ export async function adjustSaving(
   id: number,
   data: {
     amount: number;
-    type: 'increment' | 'decrement';
+    type: "increment" | "decrement";
     accountId?: number;
     reason?: string;
   },
-  userId: string
+  userId: string,
 ) {
   return db.transaction(async (tx) => {
     const [saving] = await tx.select().from(savings).where(eq(savings.id, id));
-    if (!saving) throw new Error('Saving not found.');
+    if (!saving) throw new Error("Saving not found.");
 
     const amount = data.amount;
 
-    if (data.type === 'decrement') {
+    if (data.type === "decrement") {
       const newBalance = Number(saving.currentAmount) - amount;
       if (newBalance < 0) {
-        throw new Error('Insufficient savings balance for this deduction.');
+        throw new Error("Insufficient savings balance for this deduction.");
       }
 
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+      const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
       await tx
         .update(savings)
@@ -120,16 +136,17 @@ export async function adjustSaving(
 
       await tx.insert(adjustmentLogs).values({
         userId: userId as unknown as number,
-        loggableType: 'App\\Models\\Savings',
+        loggableType: "App\\Models\\Savings",
         loggableId: id,
-        type: 'decrement',
+        type: "decrement",
         amount: String(amount),
         reason: data.reason ?? null,
         createdAt: now,
         updatedAt: now,
       });
     } else {
-      if (!data.accountId) throw new Error('account_id is required for increment.');
+      if (!data.accountId)
+        throw new Error("account_id is required for increment.");
 
       const [account] = await tx
         .select()
@@ -137,15 +154,15 @@ export async function adjustSaving(
         .where(eq(accounts.id, data.accountId));
 
       if (!account || account.userId !== (userId as unknown as number)) {
-        throw new Error('Account not found.');
+        throw new Error("Account not found.");
       }
 
       const newAccountBalance = Number(account.balance) - amount;
       if (newAccountBalance < 0) {
-        throw new Error('Insufficient account balance for this addition.');
+        throw new Error("Insufficient account balance for this addition.");
       }
 
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+      const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
       await tx
         .update(accounts)
@@ -154,14 +171,17 @@ export async function adjustSaving(
 
       await tx
         .update(savings)
-        .set({ currentAmount: String(Number(saving.currentAmount) + amount), updatedAt: now })
+        .set({
+          currentAmount: String(Number(saving.currentAmount) + amount),
+          updatedAt: now,
+        })
         .where(eq(savings.id, id));
 
       await tx.insert(adjustmentLogs).values({
         userId: userId as unknown as number,
-        loggableType: 'App\\Models\\Savings',
+        loggableType: "App\\Models\\Savings",
         loggableId: id,
-        type: 'increment',
+        type: "increment",
         amount: String(amount),
         accountId: data.accountId,
         createdAt: now,

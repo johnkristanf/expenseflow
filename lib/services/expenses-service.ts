@@ -1,7 +1,7 @@
-import { db } from '@/lib/db';
-import { expenses, budgets, categories } from '@/lib/db/schema';
-import { eq, sum, and, sql, desc } from 'drizzle-orm';
-import { getMonthNumber, isValidMonth } from '@/lib/utils/month-utils';
+import { db } from "@/lib/db";
+import { expenses, budgets, categories } from "@/lib/db/schema";
+import { eq, sum, and, sql, desc } from "drizzle-orm";
+import { getMonthNumber, isValidMonth } from "@/lib/utils/month-utils";
 
 /**
  * Fetches all expenses with their related budget (id, name) and category (id, name),
@@ -54,14 +54,16 @@ export async function createExpense(data: {
       .from(budgets)
       .where(eq(budgets.id, BigInt(data.budgetId)));
 
-    if (!budget) throw new Error('Budget not found.');
+    if (!budget) throw new Error("Budget not found.");
 
     const newAmount = Number(budget.currentAmount) - data.amount;
     if (newAmount < 0) {
-      throw new Error(`Insufficient budget. Available: ${Math.floor(Number(budget.currentAmount))}`);
+      throw new Error(
+        `Insufficient budget. Available: ${Math.floor(Number(budget.currentAmount))}`,
+      );
     }
 
-    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
     // 2. Deduct from budget
     await tx
@@ -101,7 +103,7 @@ export async function deleteExpense(id: number) {
       .from(expenses)
       .where(eq(expenses.id, BigInt(id)));
 
-    if (!expense) throw new Error('Expense not found.');
+    if (!expense) throw new Error("Expense not found.");
 
     // Restore budget balance
     if (expense.budgetId) {
@@ -111,10 +113,15 @@ export async function deleteExpense(id: number) {
         .where(eq(budgets.id, BigInt(expense.budgetId)));
 
       if (budget) {
-        const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        const now = new Date().toISOString().replace("T", " ").substring(0, 19);
         await tx
           .update(budgets)
-          .set({ currentAmount: String(Number(budget.currentAmount) + Number(expense.amount)), updatedAt: now })
+          .set({
+            currentAmount: String(
+              Number(budget.currentAmount) + Number(expense.amount),
+            ),
+            updatedAt: now,
+          })
           .where(eq(budgets.id, BigInt(expense.budgetId)));
       }
     }
@@ -129,26 +136,29 @@ export async function deleteExpense(id: number) {
  * @param id - Expense ID to update
  * @param data - Updated expense fields
  */
-export async function updateExpense(id: number, data: {
-  categoryId: number;
-  budgetId: number;
-  description: string;
-  amount: number;
-  spendingType: string;
-  dateSpent: string;
-}) {
+export async function updateExpense(
+  id: number,
+  data: {
+    categoryId: number;
+    budgetId: number;
+    description: string;
+    amount: number;
+    spendingType: string;
+    dateSpent: string;
+  },
+) {
   return db.transaction(async (tx) => {
     const [oldExpense] = await tx
       .select()
       .from(expenses)
       .where(eq(expenses.id, BigInt(id)));
 
-    if (!oldExpense) throw new Error('Expense not found.');
+    if (!oldExpense) throw new Error("Expense not found.");
 
     const oldAmount = Number(oldExpense.amount);
     const newAmount = data.amount;
 
-    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
 
     if (oldExpense.budgetId !== data.budgetId) {
       // 1. Restore old budget
@@ -157,11 +167,16 @@ export async function updateExpense(id: number, data: {
           .select()
           .from(budgets)
           .where(eq(budgets.id, BigInt(oldExpense.budgetId)));
-          
+
         if (oldBudget) {
           await tx
             .update(budgets)
-            .set({ currentAmount: String(Number(oldBudget.currentAmount) + oldAmount), updatedAt: now })
+            .set({
+              currentAmount: String(
+                Number(oldBudget.currentAmount) + oldAmount,
+              ),
+              updatedAt: now,
+            })
             .where(eq(budgets.id, BigInt(oldExpense.budgetId)));
         }
       }
@@ -172,11 +187,13 @@ export async function updateExpense(id: number, data: {
         .from(budgets)
         .where(eq(budgets.id, BigInt(data.budgetId)));
 
-      if (!newBudget) throw new Error('New budget not found.');
+      if (!newBudget) throw new Error("New budget not found.");
 
       const newBudgetAmount = Number(newBudget.currentAmount) - newAmount;
       if (newBudgetAmount < 0) {
-        throw new Error(`Insufficient budget. Available: ${Math.floor(Number(newBudget.currentAmount))}`);
+        throw new Error(
+          `Insufficient budget. Available: ${Math.floor(Number(newBudget.currentAmount))}`,
+        );
       }
 
       await tx
@@ -190,14 +207,16 @@ export async function updateExpense(id: number, data: {
         .from(budgets)
         .where(eq(budgets.id, BigInt(data.budgetId)));
 
-      if (!budget) throw new Error('Budget not found.');
+      if (!budget) throw new Error("Budget not found.");
 
       // Restore old amount, deduct new amount
       const currentBalance = Number(budget.currentAmount);
       const updatedBalance = currentBalance + oldAmount - newAmount;
 
       if (updatedBalance < 0) {
-        throw new Error(`Insufficient budget. You can only increase this expense by ${Math.floor(currentBalance)}`);
+        throw new Error(
+          `Insufficient budget. You can only increase this expense by ${Math.floor(currentBalance)}`,
+        );
       }
 
       await tx
@@ -236,28 +255,39 @@ export async function getMonthlyExpenses(month: string, year: string) {
   const lower = month.toLowerCase();
 
   if (!isValidMonth(lower)) {
-    throw new Error('Invalid month name provided.');
+    throw new Error("Invalid month name provided.");
   }
+
+  const yearAll = year === "all";
 
   let query = db
     .select({ total: sum(expenses.amount) })
     .from(expenses)
     .$dynamic();
 
-  if (lower === 'all') {
-    query = query.where(sql`EXTRACT(YEAR FROM ${expenses.dateSpent}) = ${Number(year)}`);
+  if (lower === "all" && yearAll) {
+    // No filter — sum everything
+  } else if (lower === "all") {
+    query = query.where(
+      sql`EXTRACT(YEAR FROM ${expenses.dateSpent}) = ${Number(year)}`,
+    );
+  } else if (yearAll) {
+    const monthNum = getMonthNumber(lower)!;
+    query = query.where(
+      sql`EXTRACT(MONTH FROM ${expenses.dateSpent}) = ${monthNum}`,
+    );
   } else {
     const monthNum = getMonthNumber(lower)!;
     query = query.where(
       and(
         sql`EXTRACT(MONTH FROM ${expenses.dateSpent}) = ${monthNum}`,
-        sql`EXTRACT(YEAR FROM ${expenses.dateSpent}) = ${Number(year)}`
-      )
+        sql`EXTRACT(YEAR FROM ${expenses.dateSpent}) = ${Number(year)}`,
+      ),
     );
   }
 
   const [result] = await query;
-  return { total: result?.total ?? '0' };
+  return { total: result?.total ?? "0" };
 }
 
 /**
@@ -271,33 +301,41 @@ export async function getExpensesPerCategory(month: string, year: string) {
   const lower = month.toLowerCase();
 
   if (!isValidMonth(lower)) {
-    throw new Error('Invalid month name provided.');
+    throw new Error("Invalid month name provided.");
   }
+
+  const yearAll = year === "all";
 
   let whereClause;
 
-  if (lower === 'all') {
+  if (lower === "all" && yearAll) {
+    whereClause = undefined;
+  } else if (lower === "all") {
     whereClause = sql`EXTRACT(YEAR FROM ${expenses.dateSpent}) = ${Number(year)}`;
+  } else if (yearAll) {
+    const monthNum = getMonthNumber(lower)!;
+    whereClause = sql`EXTRACT(MONTH FROM ${expenses.dateSpent}) = ${monthNum}`;
   } else {
     const monthNum = getMonthNumber(lower)!;
     whereClause = and(
       sql`EXTRACT(MONTH FROM ${expenses.dateSpent}) = ${monthNum}`,
-      sql`EXTRACT(YEAR FROM ${expenses.dateSpent}) = ${Number(year)}`
+      sql`EXTRACT(YEAR FROM ${expenses.dateSpent}) = ${Number(year)}`,
     );
   }
 
-  const results = await db
+  const query = db
     .select({
       category: categories.name,
       amount: sum(expenses.amount),
     })
     .from(expenses)
     .leftJoin(categories, eq(expenses.categoryId, categories.id))
-    .where(whereClause)
     .groupBy(categories.name);
 
+  const results = whereClause ? await query.where(whereClause) : await query;
+
   return results.map((r) => ({
-    category: r.category ?? 'Unknown',
-    amount: r.amount ?? '0',
+    category: r.category ?? "Unknown",
+    amount: r.amount ?? "0",
   }));
 }
