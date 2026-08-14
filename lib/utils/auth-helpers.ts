@@ -32,8 +32,8 @@ export async function requireAuth(): Promise<User> {
  * Wraps a route handler so that any thrown NextResponse (e.g. from requireAuth)
  * is returned directly, and any other error returns a 500.
  */
-export async function withAuth<T>(
-  handler: (user: User) => Promise<NextResponse<T>>,
+export async function withAuth(
+  handler: (user: User) => Promise<NextResponse>,
 ): Promise<NextResponse> {
   try {
     const user = await requireAuth();
