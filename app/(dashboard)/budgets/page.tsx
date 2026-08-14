@@ -435,7 +435,7 @@ export default function BudgetsPage() {
 
   const { data: budgets = [], isLoading } = useQuery({
     queryKey: ["budgets", "card"],
-    queryFn: () => budgetsApi.getAll("card") as Promise<BudgetCardView[]>,
+    queryFn: async (): Promise<Budget[]> => budgetsApi.getAll("card"),
   })
 
   const { data: accounts = [] } = useQuery({
