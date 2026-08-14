@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
 
 import { expensesApi } from "@/lib/api/expenses"
-import { budgetsApi } from "@/lib/api/budgets"
+import { budgetsApi, type Budget } from "@/lib/api/budgets"
 import { categoriesApi } from "@/lib/api/categories"
 import { getExpenseFormFields } from "@/constants/expenses"
 import { ExpenseFilter, ActiveFilter } from "@/components/expenses/expense-filter"
@@ -26,7 +26,7 @@ export default function ExpensesPage() {
 
   const { data: budgets = [] } = useQuery({
     queryKey: ["budgets"],
-    queryFn: budgetsApi.getAll,
+    queryFn: async (): Promise<Budget[]> => budgetsApi.getAll(),
   })
 
   const { data = [] } = useQuery({
