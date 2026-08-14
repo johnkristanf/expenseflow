@@ -52,7 +52,7 @@ export async function createExpense(data: {
     const [budget] = await tx
       .select()
       .from(budgets)
-      .where(eq(budgets.id, BigInt(data.budgetId)));
+      .where(eq(budgets.id, data.budgetId));
 
     if (!budget) throw new Error("Budget not found.");
 
@@ -69,7 +69,7 @@ export async function createExpense(data: {
     await tx
       .update(budgets)
       .set({ currentAmount: String(newAmount), updatedAt: now })
-      .where(eq(budgets.id, BigInt(data.budgetId)));
+      .where(eq(budgets.id, data.budgetId));
 
     // 3. Create the expense
     const [expense] = await tx
@@ -101,7 +101,7 @@ export async function deleteExpense(id: number) {
     const [expense] = await tx
       .select()
       .from(expenses)
-      .where(eq(expenses.id, BigInt(id)));
+      .where(eq(expenses.id, id));
 
     if (!expense) throw new Error("Expense not found.");
 
@@ -110,7 +110,7 @@ export async function deleteExpense(id: number) {
       const [budget] = await tx
         .select()
         .from(budgets)
-        .where(eq(budgets.id, BigInt(expense.budgetId)));
+        .where(eq(budgets.id, expense.budgetId));
 
       if (budget) {
         const now = new Date().toISOString().replace("T", " ").substring(0, 19);
@@ -122,11 +122,11 @@ export async function deleteExpense(id: number) {
             ),
             updatedAt: now,
           })
-          .where(eq(budgets.id, BigInt(expense.budgetId)));
+          .where(eq(budgets.id, expense.budgetId));
       }
     }
 
-    await tx.delete(expenses).where(eq(expenses.id, BigInt(id)));
+    await tx.delete(expenses).where(eq(expenses.id, id));
   });
 }
 
@@ -151,7 +151,7 @@ export async function updateExpense(
     const [oldExpense] = await tx
       .select()
       .from(expenses)
-      .where(eq(expenses.id, BigInt(id)));
+      .where(eq(expenses.id, id));
 
     if (!oldExpense) throw new Error("Expense not found.");
 
@@ -166,7 +166,7 @@ export async function updateExpense(
         const [oldBudget] = await tx
           .select()
           .from(budgets)
-          .where(eq(budgets.id, BigInt(oldExpense.budgetId)));
+          .where(eq(budgets.id, oldExpense.budgetId));
 
         if (oldBudget) {
           await tx
@@ -177,7 +177,7 @@ export async function updateExpense(
               ),
               updatedAt: now,
             })
-            .where(eq(budgets.id, BigInt(oldExpense.budgetId)));
+            .where(eq(budgets.id, oldExpense.budgetId));
         }
       }
 
@@ -185,7 +185,7 @@ export async function updateExpense(
       const [newBudget] = await tx
         .select()
         .from(budgets)
-        .where(eq(budgets.id, BigInt(data.budgetId)));
+        .where(eq(budgets.id, data.budgetId));
 
       if (!newBudget) throw new Error("New budget not found.");
 
@@ -199,13 +199,13 @@ export async function updateExpense(
       await tx
         .update(budgets)
         .set({ currentAmount: String(newBudgetAmount), updatedAt: now })
-        .where(eq(budgets.id, BigInt(data.budgetId)));
+        .where(eq(budgets.id, data.budgetId));
     } else {
       // Budget is the same, just adjust the difference
       const [budget] = await tx
         .select()
         .from(budgets)
-        .where(eq(budgets.id, BigInt(data.budgetId)));
+        .where(eq(budgets.id, data.budgetId));
 
       if (!budget) throw new Error("Budget not found.");
 
@@ -222,7 +222,7 @@ export async function updateExpense(
       await tx
         .update(budgets)
         .set({ currentAmount: String(updatedBalance), updatedAt: now })
-        .where(eq(budgets.id, BigInt(data.budgetId)));
+        .where(eq(budgets.id, data.budgetId));
     }
 
     // 3. Update the expense record
@@ -237,7 +237,7 @@ export async function updateExpense(
         dateSpent: data.dateSpent,
         updatedAt: now,
       })
-      .where(eq(expenses.id, BigInt(id)))
+      .where(eq(expenses.id, id))
       .returning();
 
     return updatedExpense;

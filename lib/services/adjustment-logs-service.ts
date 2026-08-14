@@ -39,7 +39,7 @@ export async function getLogs(domain: string, id: number, userId: string) {
       and(
         eq(adjustmentLogs.loggableType, loggableType),
         eq(adjustmentLogs.loggableId, id),
-        eq(adjustmentLogs.userId, userId as unknown as number),
+        eq(adjustmentLogs.userId, userId),
       ),
     )
     .orderBy(desc(adjustmentLogs.createdAt));

@@ -48,7 +48,7 @@ export function DashboardFilters({ availableYears }: { availableYears: string[] 
       <div className="flex">
         <Select
           value={currentMonth}
-          onValueChange={(value) => updateFilters('month', value)}
+          onValueChange={(value) => updateFilters('month', value || '')}
         >
           <SelectTrigger className="w-36 rounded-r-none border-r-0 focus:z-10">
             <SelectValue placeholder="Select Month">{selectedMonthLabel}</SelectValue>
@@ -64,7 +64,7 @@ export function DashboardFilters({ availableYears }: { availableYears: string[] 
 
         <Select
           value={currentYear}
-          onValueChange={(value) => updateFilters('year', value)}
+          onValueChange={(value) => updateFilters('year', value || '')}
         >
           <SelectTrigger className="w-28 rounded-l-none focus:z-10">
             <SelectValue placeholder="Select Year">{selectedYearLabel}</SelectValue>

@@ -7,7 +7,7 @@ export async function getPrompts(userId: string) {
   return db
     .select()
     .from(expensePrompts)
-    .where(eq(expensePrompts.userId, userId as unknown as number))
+    .where(eq(expensePrompts.userId, userId))
     .orderBy(desc(expensePrompts.createdAt));
 }
 
@@ -17,7 +17,7 @@ export async function createPrompt(userId: string, promptText: string) {
   const [prompt] = await db
     .insert(expensePrompts)
     .values({
-      userId: userId as unknown as number,
+      userId: userId,
       promptText,
       createdAt: now,
       updatedAt: now,
@@ -42,7 +42,7 @@ export async function updatePrompt(
     .where(
       and(
         eq(expensePrompts.id, id),
-        eq(expensePrompts.userId, userId as unknown as number),
+        eq(expensePrompts.userId, userId),
       ),
     )
     .returning();
@@ -60,7 +60,7 @@ export async function deletePrompt(id: number, userId: string) {
     .where(
       and(
         eq(expensePrompts.id, id),
-        eq(expensePrompts.userId, userId as unknown as number),
+        eq(expensePrompts.userId, userId),
       ),
     )
     .returning();

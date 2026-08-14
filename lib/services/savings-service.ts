@@ -135,7 +135,7 @@ export async function adjustSaving(
         .where(eq(savings.id, id));
 
       await tx.insert(adjustmentLogs).values({
-        userId: userId as unknown as number,
+        userId: userId,
         loggableType: "App\\Models\\Savings",
         loggableId: id,
         type: "decrement",
@@ -153,7 +153,7 @@ export async function adjustSaving(
         .from(accounts)
         .where(eq(accounts.id, data.accountId));
 
-      if (!account || account.userId !== (userId as unknown as number)) {
+      if (!account || account.userId !== userId) {
         throw new Error("Account not found.");
       }
 
@@ -178,7 +178,7 @@ export async function adjustSaving(
         .where(eq(savings.id, id));
 
       await tx.insert(adjustmentLogs).values({
-        userId: userId as unknown as number,
+        userId: userId,
         loggableType: "App\\Models\\Savings",
         loggableId: id,
         type: "increment",

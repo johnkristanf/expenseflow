@@ -47,7 +47,7 @@ export async function updateCategory(
   const [category] = await db
     .update(categories)
     .set({ name: data.name, notes: data.notes ?? null, updatedAt: now })
-    .where(eq(categories.id, BigInt(id)))
+    .where(eq(categories.id, id))
     .returning();
 
   if (!category) throw new Error("Category not found.");
@@ -64,7 +64,7 @@ export async function updateCategory(
 export async function deleteCategory(id: number) {
   const [deleted] = await db
     .delete(categories)
-    .where(eq(categories.id, BigInt(id)))
+    .where(eq(categories.id, id))
     .returning();
 
   if (!deleted) throw new Error("Category not found.");

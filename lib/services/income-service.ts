@@ -66,7 +66,7 @@ export async function updateIncome(
       dateAcquired: data.dateAcquired,
       updatedAt: now,
     })
-    .where(eq(income.id, BigInt(id)))
+    .where(eq(income.id, id))
     .returning();
 
   if (!record) throw new Error("Income record not found.");
@@ -82,7 +82,7 @@ export async function updateIncome(
 export async function deleteIncome(id: number) {
   const [deleted] = await db
     .delete(income)
-    .where(eq(income.id, BigInt(id)))
+    .where(eq(income.id, id))
     .returning();
 
   if (!deleted) throw new Error("Income record not found.");

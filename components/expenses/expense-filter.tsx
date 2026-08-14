@@ -267,7 +267,7 @@ export function ExpenseFilter({
                 {selectedType === "spendingType" && (
                   <>
                     <Label className="text-xs text-muted-foreground">Type</Label>
-                    <Select onValueChange={(v) => applySimpleFilter("spendingType", v)}>
+                    <Select onValueChange={(v: any) => applySimpleFilter("spendingType", v || "")}>
                       <SelectTrigger className="w-full h-8 text-sm">
                         <SelectValue placeholder="Select spending type…" />
                       </SelectTrigger>
@@ -286,7 +286,7 @@ export function ExpenseFilter({
                 {selectedType === "category" && (
                   <>
                     <Label className="text-xs text-muted-foreground">Category</Label>
-                    <Select onValueChange={(v) => applySimpleFilter("category", v)}>
+                    <Select onValueChange={(v: any) => applySimpleFilter("category", v || "")}>
                       <SelectTrigger className="w-full h-8 text-sm">
                         <SelectValue placeholder="Select category…" />
                       </SelectTrigger>
@@ -311,7 +311,7 @@ export function ExpenseFilter({
                 {selectedType === "budget" && (
                   <>
                     <Label className="text-xs text-muted-foreground">Budget</Label>
-                    <Select onValueChange={(v) => applySimpleFilter("budget", v)}>
+                    <Select onValueChange={(v: any) => applySimpleFilter("budget", v || "")}>
                       <SelectTrigger className="w-full h-8 text-sm">
                         <SelectValue placeholder="Select budget…" />
                       </SelectTrigger>

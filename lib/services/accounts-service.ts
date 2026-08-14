@@ -58,7 +58,7 @@ export async function updateAccount(
       balance: String(data.balance),
       updatedAt: now,
     })
-    .where(and(eq(accounts.id, BigInt(id)), eq(accounts.userId, userId)))
+    .where(and(eq(accounts.id, id), eq(accounts.userId, userId)))
     .returning();
   if (!updated) throw new Error("Account not found.");
   return updated;
@@ -71,7 +71,7 @@ export async function updateAccount(
 export async function deleteAccount(id: number, userId: string) {
   const [deleted] = await db
     .delete(accounts)
-    .where(and(eq(accounts.id, BigInt(id)), eq(accounts.userId, userId)))
+    .where(and(eq(accounts.id, id), eq(accounts.userId, userId)))
     .returning();
   if (!deleted) throw new Error("Account not found.");
 }
@@ -88,7 +88,7 @@ export async function adjustAccountBalance(
   const [account] = await db
     .select()
     .from(accounts)
-    .where(and(eq(accounts.id, BigInt(id)), eq(accounts.userId, userId)));
+    .where(and(eq(accounts.id, id), eq(accounts.userId, userId)));
 
   if (!account) throw new Error("Account not found.");
 
@@ -104,7 +104,7 @@ export async function adjustAccountBalance(
   const [updated] = await db
     .update(accounts)
     .set({ balance: String(newBalance), updatedAt: now })
-    .where(eq(accounts.id, BigInt(id)))
+    .where(eq(accounts.id, id))
     .returning();
 
   return updated;
