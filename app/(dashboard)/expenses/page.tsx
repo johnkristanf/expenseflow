@@ -13,6 +13,7 @@ import { budgetsApi, type Budget } from "@/lib/api/budgets"
 import { categoriesApi } from "@/lib/api/categories"
 import { getExpenseFormFields } from "@/constants/expenses"
 import { ExpenseFilter, ActiveFilter } from "@/components/expenses/expense-filter"
+import { BudgetLookupPopover } from "@/components/expenses/budget-lookup-popover"
 import { toast } from "@/components/ui/toast"
 
 export default function ExpensesPage() {
@@ -27,6 +28,11 @@ export default function ExpensesPage() {
   const { data: budgets = [] } = useQuery({
     queryKey: ["budgets"],
     queryFn: async (): Promise<Budget[]> => budgetsApi.getAll(),
+  })
+
+  const { data: topBudgets = [] } = useQuery({
+    queryKey: ["budgets", "lookup"],
+    queryFn: async (): Promise<Budget[]> => budgetsApi.getAll("lookup"),
   })
 
   const { data = [] } = useQuery({
@@ -168,6 +174,7 @@ export default function ExpensesPage() {
             activeFilters={activeFilters}
             onFiltersChange={setActiveFilters}
           />
+          <BudgetLookupPopover budgets={topBudgets} />
           <FormDialog
             title="Add New Expense"
             description="Enter the details of your expense."

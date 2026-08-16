@@ -36,9 +36,9 @@ export function getColumns({
       header: "Target Amount",
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue<string>("targetAmount"))
-        const formatted = new Intl.NumberFormat("en-US", {
+        const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
-          currency: "USD",
+          currency: "PHP",
         }).format(amount)
         return <div className="font-medium">{formatted}</div>
       },
@@ -48,9 +48,9 @@ export function getColumns({
       header: "Current Amount",
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue<string>("currentAmount"))
-        const formatted = new Intl.NumberFormat("en-US", {
+        const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
-          currency: "USD",
+          currency: "PHP",
         }).format(amount)
         return <div className="font-medium text-green-500">{formatted}</div>
       },

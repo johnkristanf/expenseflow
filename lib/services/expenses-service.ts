@@ -59,7 +59,7 @@ export async function createExpense(data: {
     const newAmount = Number(budget.currentAmount) - data.amount;
     if (newAmount < 0) {
       throw new Error(
-        `Insufficient budget. Available: ${Math.floor(Number(budget.currentAmount))}`,
+        `Insufficient budget. Available: ₱${Math.floor(Number(budget.currentAmount))}`,
       );
     }
 
@@ -192,7 +192,7 @@ export async function updateExpense(
       const newBudgetAmount = Number(newBudget.currentAmount) - newAmount;
       if (newBudgetAmount < 0) {
         throw new Error(
-          `Insufficient budget. Available: ${Math.floor(Number(newBudget.currentAmount))}`,
+          `Insufficient budget. Available: ₱${Math.floor(Number(newBudget.currentAmount))}`,
         );
       }
 
@@ -215,7 +215,7 @@ export async function updateExpense(
 
       if (updatedBalance < 0) {
         throw new Error(
-          `Insufficient budget. You can only increase this expense by ${Math.floor(currentBalance)}`,
+          `Insufficient budget. You can only increase this expense by ₱${Math.floor(currentBalance)}`,
         );
       }
 

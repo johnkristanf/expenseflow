@@ -71,9 +71,9 @@ export function getColumns({
       header: "Amount",
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("amount"))
-        const formatted = new Intl.NumberFormat("en-US", {
+        const formatted = new Intl.NumberFormat("en-PH", {
           style: "currency",
-          currency: "USD",
+          currency: "PHP",
         }).format(amount)
 
         return <div className="font-medium">{formatted}</div>

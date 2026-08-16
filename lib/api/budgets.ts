@@ -9,8 +9,15 @@ export type Budget = {
   updatedAt: string;
 };
 
+export interface BudgetCardView {
+  id: number;
+  name: string;
+  currentAmount: string;
+  totalAmount: string;
+}
+
 export const budgetsApi = {
-  getAll: (component?: 'card' | 'dropdown') => {
+  getAll: (component?: 'card' | 'dropdown' | 'lookup') => {
     const query = component ? `?component=${component}` : '';
     return apiFetch<Budget[]>(`/budgets${query}`);
   },

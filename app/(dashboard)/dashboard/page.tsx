@@ -5,7 +5,8 @@ import { DashboardFilters } from '@/components/dashboard/dashboard-filters';
 import { CategoryExpenseChart } from '@/components/dashboard/category-expense-chart';
 import { IncomeSourceChart } from '@/components/dashboard/income-source-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, ArrowDown, ArrowUp, Tag } from 'lucide-react';
+import { Banknote, ArrowDown, ArrowUp, Tag } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils/format-currency';
 
 export default async function DashboardPage(
   props: {
@@ -60,11 +61,11 @@ export default async function DashboardPage(
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-600">
-              ${totalIncome.toFixed(2)}
+              {formatCurrency(totalIncome)}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
@@ -72,7 +73,7 @@ export default async function DashboardPage(
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-rose-600">
-              ${totalExpense.toFixed(2)}
+              {formatCurrency(totalExpense)}
             </div>
           </CardContent>
         </Card>
@@ -80,11 +81,11 @@ export default async function DashboardPage(
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <Banknote className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${netBalance.toFixed(2)}
+              {formatCurrency(netBalance)}
             </div>
           </CardContent>
         </Card>

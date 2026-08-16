@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { budgets, accounts, adjustmentLogs } from '@/lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
 
 /** Shape returned for the 'card' component view */
 type BudgetCardView = {
@@ -16,9 +16,17 @@ type BudgetDropdownView = { id: number; name: string };
 /**
  * Fetches budgets. Optionally filters selected columns based on UI component.
  *
- * @param component - `'card'` | `'dropdown'` | undefined (returns all columns)
+ * @param component - `'card'` | `'dropdown'` | `'lookup'` | undefined (returns all columns)
  */
 export async function getBudgets(component?: string) {
+  if (component === 'lookup') {
+    return db
+      .select()
+      .from(budgets)
+      .where(sql`${budgets.currentAmount}::numeric > 0`)
+      .orderBy(desc(budgets.createdAt))
+      .limit(5);
+  }
   if (component === 'card') {
     return db
       .select({

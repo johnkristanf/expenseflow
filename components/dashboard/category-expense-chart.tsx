@@ -44,7 +44,7 @@ export function CategoryExpenseChart({ data }: CategoryExpenseChartProps) {
             tickLine={false}
             axisLine={false}
             fontSize={12}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `₱${value}`}
           />
           <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
           <Bar

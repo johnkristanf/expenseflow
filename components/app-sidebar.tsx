@@ -35,25 +35,11 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Accounts",
-    url: "/accounts",
-    icon: Landmark,
-  },
-  {
-    title: "Income",
-    url: "/income",
-    icon: TrendingUp,
-  },
-  {
     title: "Expenses",
     url: "/expenses",
     icon: ReceiptText,
   },
-  {
-    title: "Savings",
-    url: "/savings",
-    icon: Target,
-  },
+
   {
     title: "Budgets",
     url: "/budgets",
@@ -65,10 +51,25 @@ const navItems = [
     icon: Tag,
   },
   {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
+    title: "Accounts",
+    url: "/accounts",
+    icon: Landmark,
   },
+
+  {
+    title: "Income",
+    url: "/income",
+    icon: TrendingUp,
+  },
+
+  {
+    title: "Savings",
+    url: "/savings",
+    icon: Target,
+  },
+
+
+
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -92,7 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <span className="font-semibold text-lg tracking-tight">ExpenseFlow</span>
         </div>
       </SidebarHeader>
-      
+
       <SidebarContent className="py-4">
         <SidebarGroup>
           <SidebarMenu>
@@ -117,7 +118,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      
+
       <SidebarRail />
     </Sidebar>
   )
