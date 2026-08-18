@@ -34,8 +34,14 @@ export const budgetsApi = {
       body: JSON.stringify(data),
     }),
 
-  adjust: (id: number, data: { amount: number; type: 'increment' | 'decrement'; accountId?: number; reason?: string }) => 
+  adjust: (id: number, data: { amount: number; type: 'increment' | 'decrement' | 'move'; accountId?: number; reason?: string }) => 
     apiFetch<Budget>(`/budgets/${id}/adjust`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  move: (id: number, data: { targetBudgetId: number; amount: number }) =>
+    apiFetch<Budget>(`/budgets/${id}/move`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),

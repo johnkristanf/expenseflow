@@ -172,6 +172,7 @@ export const categories = pgTable("categories", {
   id: bigserial({ mode: "number" }).primaryKey().notNull(),
   name: varchar({ length: 255 }).notNull(),
   notes: text(),
+  userId: uuid("user_id").notNull(),
   createdAt: timestamp("created_at", { mode: "string" }),
   updatedAt: timestamp("updated_at", { mode: "string" }),
 });
@@ -186,6 +187,7 @@ export const savings = pgTable("savings", {
   }).notNull(),
   startDate: date("start_date").notNull(),
   targetDate: date("target_date").notNull(),
+  userId: uuid("user_id").notNull(),
   createdAt: timestamp("created_at", { mode: "string" }),
   updatedAt: timestamp("updated_at", { mode: "string" }),
 });
@@ -195,6 +197,7 @@ export const income = pgTable("income", {
   source: varchar({ length: 255 }).notNull(),
   amount: numeric({ precision: 15, scale: 2 }).default("0").notNull(),
   dateAcquired: date("date_acquired").notNull(),
+  userId: uuid("user_id").notNull(),
   createdAt: timestamp("created_at", { mode: "string" }),
   updatedAt: timestamp("updated_at", { mode: "string" }),
 });
@@ -209,6 +212,7 @@ export const expenses = pgTable(
     dateSpent: date("date_spent").notNull(),
     // You can use { mode: "number" } if numbers are exceeding js number limitations
     categoryId: bigint("category_id", { mode: "number" }),
+    userId: uuid("user_id").notNull(),
     createdAt: timestamp("created_at", { mode: "string" }),
     updatedAt: timestamp("updated_at", { mode: "string" }),
     // You can use { mode: "number" } if numbers are exceeding js number limitations
@@ -235,6 +239,7 @@ export const budgets = pgTable("budgets", {
     .default("0")
     .notNull(),
   totalAmount: numeric("total_amount", { precision: 15, scale: 2 }).notNull(),
+  userId: uuid("user_id").notNull(),
   createdAt: timestamp("created_at", { mode: "string" }),
   updatedAt: timestamp("updated_at", { mode: "string" }),
 });

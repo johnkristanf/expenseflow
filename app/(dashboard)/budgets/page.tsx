@@ -75,6 +75,18 @@ export default function BudgetsPage() {
     },
   })
 
+  const moveMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: AdjustData }) =>
+      budgetsApi.move(id, { targetBudgetId: data.targetBudgetId!, amount: data.amount }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["budgets"] })
+      toast.add({ title: "Funds moved", description: "Balance transferred to the target budget.", type: "success" })
+    },
+    onError: (err: unknown) => {
+      toast.add({ title: "Error", description: err instanceof Error ? err.message : "Failed to move funds.", type: "error" })
+    },
+  })
+
   // ── Handlers ───────────────────────────────────────────────────────────────
 
   async function handleCreate(formData: Record<string, string>): Promise<boolean> {
@@ -95,7 +107,11 @@ export default function BudgetsPage() {
   }
 
   function handleAdjust(id: number, data: AdjustData) {
-    adjustMutation.mutate({ id, data })
+    if (data.type === "move") {
+      moveMutation.mutate({ id, data })
+    } else {
+      adjustMutation.mutate({ id, data })
+    }
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -158,7 +174,8 @@ export default function BudgetsPage() {
               onDelete={handleDelete}
               onAdjust={handleAdjust}
               deletePending={deleteMutation.isPending}
-              adjustPending={adjustMutation.isPending}
+              adjustPending={adjustMutation.isPending || moveMutation.isPending}
+              budgets={budgets}
             />
           ))}
         </div>

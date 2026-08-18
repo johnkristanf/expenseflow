@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { users, expensePrompts, accounts, budgets, expenses, categories, adjustmentLogs } from "./schema";
+import { users, expensePrompts, accounts, budgets, expenses, categories, adjustmentLogs, savings, income } from "./schema";
 
 export const expensePromptsRelations = relations(expensePrompts, ({one}) => ({
 	user: one(users, {
@@ -12,6 +12,11 @@ export const usersRelations = relations(users, ({many}) => ({
 	expensePrompts: many(expensePrompts),
 	accounts: many(accounts),
 	adjustmentLogs: many(adjustmentLogs),
+	budgets: many(budgets),
+	expenses: many(expenses),
+	categories: many(categories),
+	savings: many(savings),
+	income: many(income),
 }));
 
 export const accountsRelations = relations(accounts, ({one, many}) => ({
@@ -31,14 +36,26 @@ export const expensesRelations = relations(expenses, ({one}) => ({
 		fields: [expenses.categoryId],
 		references: [categories.id]
 	}),
+	user: one(users, {
+		fields: [expenses.userId],
+		references: [users.id]
+	}),
 }));
 
-export const budgetsRelations = relations(budgets, ({many}) => ({
+export const budgetsRelations = relations(budgets, ({one, many}) => ({
 	expenses: many(expenses),
+	user: one(users, {
+		fields: [budgets.userId],
+		references: [users.id]
+	}),
 }));
 
-export const categoriesRelations = relations(categories, ({many}) => ({
+export const categoriesRelations = relations(categories, ({one, many}) => ({
 	expenses: many(expenses),
+	user: one(users, {
+		fields: [categories.userId],
+		references: [users.id]
+	}),
 }));
 
 export const adjustmentLogsRelations = relations(adjustmentLogs, ({one}) => ({
@@ -48,6 +65,20 @@ export const adjustmentLogsRelations = relations(adjustmentLogs, ({one}) => ({
 	}),
 	user: one(users, {
 		fields: [adjustmentLogs.userId],
+		references: [users.id]
+	}),
+}));
+
+export const savingsRelations = relations(savings, ({one}) => ({
+	user: one(users, {
+		fields: [savings.userId],
+		references: [users.id]
+	}),
+}));
+
+export const incomeRelations = relations(income, ({one}) => ({
+	user: one(users, {
+		fields: [income.userId],
 		references: [users.id]
 	}),
 }));

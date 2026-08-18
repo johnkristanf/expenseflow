@@ -28,6 +28,8 @@ export interface GoalCardProps {
   editDescription?: string
   adjustDescription?: string
   accounts: { id: number; name: string }[]
+  /** Other budgets available as move targets (current budget will be excluded automatically). */
+  budgets?: { id: number; name: string }[]
   onEdit: (id: number, data: Record<string, string>) => Promise<boolean>
   onDelete: (id: number) => void
   onAdjust: (id: number, data: AdjustData) => void
@@ -50,6 +52,7 @@ export function GoalCard({
   editDescription = "Update the details.",
   adjustDescription,
   accounts,
+  budgets = [],
   onEdit,
   onDelete,
   onAdjust,
@@ -100,6 +103,7 @@ export function GoalCard({
             name={name}
             description={adjustDescription}
             accounts={accounts}
+            budgets={budgets.filter((b) => b.id !== id)}
             onConfirm={(data) => onAdjust(id, data)}
             loading={adjustPending}
           />

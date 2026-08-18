@@ -4,6 +4,7 @@ import * as React from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { FormDialog } from "@/components/ui/form-dialog"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { AdjustDialog, type AdjustData } from "@/components/ui/adjust-dialog"
 import { Button } from "@/components/ui/button"
 import { PlusIcon, Pencil, Trash2, Landmark, Wallet, CreditCard, PieChart, Coins } from "lucide-react"
 
@@ -41,12 +42,16 @@ function AccountCard({
   account,
   onEdit,
   onDelete,
+  onAdjust,
   deletePending,
+  adjustPending,
 }: {
   account: Account
   onEdit: (id: number, data: Record<string, string>) => Promise<boolean>
   onDelete: (id: number) => void
+  onAdjust: (id: number, data: AdjustData) => void
   deletePending: boolean
+  adjustPending: boolean
 }) {
   const editDefaultValues: Record<string, string> = {
     name: account.name,
@@ -70,6 +75,16 @@ function AccountCard({
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-0.5 opacity-100">
+          <AdjustDialog
+            triggerId={`adjust-account-${account.id}`}
+            name={account.name}
+            description="Add or deduct funds from this account."
+            onConfirm={(data) => onAdjust(account.id, data)}
+            loading={adjustPending}
+            allowedTabs={["increment", "decrement"]}
+            showAccountSelector={false}
+          />
+
           <FormDialog
             title={`Edit — ${account.name}`}
             description="Update your account details."
@@ -175,6 +190,29 @@ export default function AccountsPage() {
     },
   })
 
+  const adjustMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: AdjustData }) =>
+      fetch(`/api/accounts/${id}/adjust`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json()
+          throw new Error(err.error || "Failed to adjust balance")
+        }
+        return res.json()
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] })
+      toast.add({ title: "Balance updated", description: "Account balance has been adjusted.", type: "success" })
+    },
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : "Failed to adjust balance."
+      toast.add({ title: "Error", description: message, type: "error" })
+    },
+  })
+
   // ── Handlers ───────────────────────────────────────────────────────────────
 
   async function handleSubmit(formData: Record<string, string>): Promise<boolean> {
@@ -189,6 +227,10 @@ export default function AccountsPage() {
 
   function handleDelete(id: number) {
     deleteMutation.mutate(id)
+  }
+
+  function handleAdjust(id: number, data: AdjustData) {
+    adjustMutation.mutate({ id, data })
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -237,7 +279,9 @@ export default function AccountsPage() {
               account={account}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onAdjust={handleAdjust}
               deletePending={deleteMutation.isPending}
+              adjustPending={adjustMutation.isPending}
             />
           ))}
         </div>

@@ -190,6 +190,70 @@ export async function adjustBudget(
 }
 
 /**
+ * Moves funds from one budget to another in a single transaction.
+ *
+ * @param fromId        - Source budget ID
+ * @param toId          - Destination budget ID
+ * @param amount        - Amount to transfer (must be positive)
+ * @param userId        - Authenticated user ID (for adjustment logs)
+ * @throws On insufficient source balance or if either budget is not found
+ */
+export async function moveBudgetFunds(
+  fromId: number,
+  toId: number,
+  amount: number,
+  userId: string
+) {
+  return db.transaction(async (tx) => {
+    const [source] = await tx.select().from(budgets).where(eq(budgets.id, fromId));
+    if (!source) throw new Error('Source budget not found.');
+
+    const [target] = await tx.select().from(budgets).where(eq(budgets.id, toId));
+    if (!target) throw new Error('Target budget not found.');
+
+    if (fromId === toId) throw new Error('Source and target budgets must be different.');
+
+    const sourceBalance = Number(source.currentAmount);
+    if (sourceBalance < amount) {
+      throw new Error('Insufficient source budget balance for this transfer.');
+    }
+
+    const now = new Date().toISOString();
+
+    await tx
+      .update(budgets)
+      .set({ currentAmount: String(sourceBalance - amount), updatedAt: now })
+      .where(eq(budgets.id, fromId));
+
+    await tx
+      .update(budgets)
+      .set({ currentAmount: String(Number(target.currentAmount) + amount), updatedAt: now })
+      .where(eq(budgets.id, toId));
+
+    await tx.insert(adjustmentLogs).values({
+      userId,
+      loggableType: 'App\\Models\\Budgets',
+      loggableId: fromId,
+      type: 'decrement',
+      amount: String(amount),
+      reason: `Moved to budget: ${target.name}`,
+    });
+
+    await tx.insert(adjustmentLogs).values({
+      userId,
+      loggableType: 'App\\Models\\Budgets',
+      loggableId: toId,
+      type: 'increment',
+      amount: String(amount),
+      reason: `Moved from budget: ${source.name}`,
+    });
+
+    const [updatedSource] = await tx.select().from(budgets).where(eq(budgets.id, fromId));
+    return updatedSource;
+  });
+}
+
+/**
  * Deletes a budget by ID.
  *
  * @param id - Budget ID
